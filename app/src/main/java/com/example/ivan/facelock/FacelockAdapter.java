@@ -1,6 +1,9 @@
 package com.example.ivan.facelock;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +37,13 @@ public class FacelockAdapter extends BaseAdapter {
         infos = infos_;
     }
 
+    // update text for titles and infos
+    public void update(List<String> titles_, List<String> infos_) {
+        titles = titles_;
+        infos = infos_;
+        notifyDataSetChanged();
+    }
+
     // get number of elements in list view
     @Override
     public int getCount() {
@@ -65,6 +75,25 @@ public class FacelockAdapter extends BaseAdapter {
         // set text views
         title.setText(titles.get(position));
         info.setText(infos.get(position));
+
+        if (position > 0 && titles.get(FacelockActivity.ENABLE_OPTION) == mContext.getString(R.string.enabled).toString()) {
+            title.setTextColor(Color.LTGRAY);
+            info.setTextColor(Color.LTGRAY);
+            view.setEnabled(false);
+        }
+        else if(position == 0 && infos.get(FacelockActivity.PIN_OPTION) == mContext.getString(R.string.not_set)) {
+            title.setTextColor(Color.LTGRAY);
+            info.setTextColor(Color.LTGRAY);
+            view.setEnabled(false);
+
+        }
+        else {
+            title.setTextColor(Color.BLACK);
+            info.setTextColor(Color.BLACK);
+            view.setEnabled(true);
+
+        }
+
         return view;
     }
 }
