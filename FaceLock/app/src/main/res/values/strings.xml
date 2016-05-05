@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">FaceLock</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="set_pin">Set PIN</string>
+    <string name="pin_not_set">Set PIN to enable facelock</string>
+    <string name="empty"> </string>
+    <string name="set_bg">Set Background</string>
+    <string name="default_bg">Default</string>
+    <string name="clock">Display Clock</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="run_startup">Run On Startup</string>
+    <string name="placeholder">Placeholder</string>
+</resources>
