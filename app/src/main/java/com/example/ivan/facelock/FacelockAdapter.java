@@ -1,17 +1,12 @@
 package com.example.ivan.facelock;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.util.Log;
-import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -76,20 +71,20 @@ public class FacelockAdapter extends BaseAdapter {
         title.setText(titles.get(position));
         info.setText(infos.get(position));
 
-        if (position > 0 && titles.get(FacelockActivity.ENABLE_OPTION) == mContext.getString(R.string.enabled).toString()) {
-            title.setTextColor(Color.LTGRAY);
-            info.setTextColor(Color.LTGRAY);
+        if (position > 0 && titles.get(MainActivity.ENABLE_OPTION) == mContext.getString(R.string.enabled).toString()) {
+            title.setTextColor(Color.DKGRAY);
+            info.setTextColor(Color.DKGRAY);
             view.setEnabled(false);
         }
-        else if(position == 0 && infos.get(FacelockActivity.PIN_OPTION) == mContext.getString(R.string.not_set)) {
-            title.setTextColor(Color.LTGRAY);
-            info.setTextColor(Color.LTGRAY);
+        else if(position == 0 && infos.get(MainActivity.PIN_OPTION) == mContext.getString(R.string.not_set)) {
+            title.setTextColor(Color.DKGRAY);
+            info.setTextColor(Color.DKGRAY);
             view.setEnabled(false);
 
         }
         else {
-            title.setTextColor(Color.BLACK);
-            info.setTextColor(Color.BLACK);
+            title.setTextColor(Color.LTGRAY);
+            info.setTextColor(Color.LTGRAY);
             view.setEnabled(true);
 
         }

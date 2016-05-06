@@ -11,4 +11,11 @@
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="run_startup">Run On Startup</string>
+    <string name="default_settings">Default Settings</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="verify_pin">Verify PIN</string>
+    <string name="pins_not_matching">The PINs entered do not match</string>
+    <string name="pin_too_short">The PIN must be 4 to 10 digits long</string>
+    <string name="swipe">Swipe to use Facelock</string>
+
 </resources>

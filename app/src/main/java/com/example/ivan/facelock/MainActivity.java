@@ -1,18 +1,23 @@
 package com.example.ivan.facelock;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class FacelockActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     // facelock state variables
     private boolean mEnabled;          // facelock enabled status
@@ -23,7 +28,7 @@ public class FacelockActivity extends AppCompatActivity {
     private String mPin;                // PIN
 
     // Log tag
-    private final String TAG = "FacelockActivity";
+    private final String TAG = "MainActivity";
 
     // option ids
     final static int ENABLE_OPTION = 0;
@@ -31,6 +36,9 @@ public class FacelockActivity extends AppCompatActivity {
     final static int BACKGROUND_OPTION = 2;
     final static int CLOCK_OPTION = 3;
     final static int STARTUP_OPTION = 4;
+    final static int DEFAULT_SETTINGS_OPTION = 5;
+    final static int GET_PIN_REQUEST = 0;
+    final static int SELECT_PICTURE = 1;
 
     // title and info text for each menu option
     private List<String> titles = new ArrayList<String>();
@@ -42,16 +50,19 @@ public class FacelockActivity extends AppCompatActivity {
     // list view
     private ListView mListView;
     private FacelockAdapter mAdapter = null;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.i(TAG, "onCreate()");
 
         setContentView(R.layout.activity_facelock);
+        mContext = this;
 
-        // add 5 empty strings to each list
-        for(int i = 0; i < 5; i++) {
+        // add 6 empty strings to each list
+        for(int i = 0; i < 6; i++) {
             titles.add(" ");
             infos.add(" ");
         }
@@ -81,7 +92,6 @@ public class FacelockActivity extends AppCompatActivity {
 
                     // enable/disable facelock
                     case ENABLE_OPTION:
-
                         if (mEnabled) {
                             mEnabled = false;
                             updateSettings();
@@ -90,31 +100,56 @@ public class FacelockActivity extends AppCompatActivity {
                         else {
                             if (!mPinSet)
                                 break;
-
                             mEnabled = true;
+                            updateSettings();
+                            Intent intent = new Intent(mContext, LockscreenActivity.class);
+                            startActivity(intent);
                         }
                         break;
 
                     // let user set or change their PIN
                     case PIN_OPTION:
+                        if (!mEnabled) {
+                            Intent intent = new Intent(mContext, ChangePinActivity.class);
+                            startActivityForResult(intent, GET_PIN_REQUEST);
+                        }
                         break;
 
                     // get a background image from gallery
                     case BACKGROUND_OPTION:
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(intent, SELECT_PICTURE);
                         break;
 
                     // change display clock status
                     case CLOCK_OPTION:
-                        mClock = !mClock;
-                        updateSettings();
+                        if (!mEnabled) {
+                            mClock = !mClock;
+                            updateSettings();
+                        }
                         break;
 
                     // change runOnStartup status
                     case STARTUP_OPTION:
-                        mRunOnStartup = !mRunOnStartup;
-                        updateSettings();
+                        if (!mEnabled) {
+                            mRunOnStartup = !mRunOnStartup;
+                            updateSettings();
+                        }
                         break;
 
+                    // revert to default settings
+                    case DEFAULT_SETTINGS_OPTION:
+                        if (!mEnabled) {
+                            mEnabled = false;
+                            mPinSet = false;
+                            mBackground = "Default";
+                            mClock = true;
+                            mRunOnStartup = true;
+                            updateSettings();
+                        }
+                        break;
                     // invalid option - should never get here
                     default:
                         Log.i(TAG, "Unrecognized option");
@@ -122,6 +157,43 @@ public class FacelockActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    // called after activity finishes
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "onActivityResult");
+
+        // get the PIN if activity ended with result ok
+        if (requestCode == GET_PIN_REQUEST && resultCode == RESULT_OK) {
+            if (data == null) {
+                Log.i(TAG, "intent received was null");
+                return;
+            }
+            mPin = data.getStringExtra("pin");
+            mPinSet = true;
+            updateSettings();
+        }
+
+        // get the image path if a picture was selected
+        if(requestCode == SELECT_PICTURE && resultCode == RESULT_OK) {
+            if (data == null) {
+                Log.i(TAG, "intent received was null");
+                return;
+            }
+
+            Uri imageUri = data.getData();
+
+            if(imageUri == null) {
+                Log.i(TAG, "image uri was null");
+                return;
+            }
+
+            mBackground = imageUri.getPath();
+            Log.i(TAG, mBackground);
+            updateSettings();
+        }
+
     }
 
     // load settings from shared preferences
@@ -162,7 +234,10 @@ public class FacelockActivity extends AppCompatActivity {
         if (!mEnabled) {
             // Enable Facelock
             titles.set(ENABLE_OPTION, getText(R.string.disabled).toString());
-            infos.set(ENABLE_OPTION, getText(R.string.pin_not_set).toString());
+            if (!mPinSet)
+                infos.set(ENABLE_OPTION, getText(R.string.pin_not_set).toString());
+            else
+                infos.set(ENABLE_OPTION, " ");
         }
         else {
             // Disable Facelock
@@ -195,12 +270,21 @@ public class FacelockActivity extends AppCompatActivity {
         else
             infos.set(STARTUP_OPTION, getText(R.string.disabled).toString());
 
+        titles.set(DEFAULT_SETTINGS_OPTION, getText(R.string.default_settings).toString());
+        infos.set(DEFAULT_SETTINGS_OPTION, " ");
+
         // update adapter if it is not null
         if (mAdapter != null) {
             mAdapter.update(titles, infos);
         }
+    }
 
-        // save settings to shared preferences
+    // save settings before destroying
+    @Override
+    protected  void onDestroy() {
+        super.onDestroy();
+
+        Log.i(TAG, "onDestory()");
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean("enabled", mEnabled);
         editor.putString("pin", mPin);
