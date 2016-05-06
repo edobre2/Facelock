@@ -1,5 +1,6 @@
 package com.example.ivan.facelock;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     final static int DEFAULT_SETTINGS_OPTION = 5;
     final static int GET_PIN_REQUEST = 0;
     final static int SELECT_PICTURE = 1;
+    final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
 
     // title and info text for each menu option
     private List<String> titles = new ArrayList<String>();
@@ -195,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
             mBackground = getRealPathFromURI(imageUri);
             Log.i(TAG, mBackground);
             updateSettings();
