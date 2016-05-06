@@ -189,9 +189,13 @@ public class LockscreenActivity extends AppCompatActivity {
                 if (mEnteredPin.equals(mPin)) {
                     // unlock phone
                     // unlock sound
+                    MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
+                    mp.start();
                     finish();
                 }
                 else {
+                    MediaPlayer mp = MediaPlayer.create(mContext, R.raw.beep);
+                    mp.start();
                     enterPinTextView.setTextColor(Color.RED);
                     enterPinTextView.setText("Invalid PIN");
                 }
