@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.media.MediaPlayer;
@@ -78,8 +79,11 @@ public class LockscreenActivity extends AppCompatActivity {
         pinTextView.setText("");
         updateTime();
 
-        if (!mBackground.equals("Default"))
-            layout.setBackground(Drawable.createFromPath(mBackground));
+        if (!mBackground.equals("Default")) {
+            Drawable d = Drawable.createFromPath(mBackground);
+            if ( d!= null)
+            layout.setBackground(d);
+        }
         else
             layout.setBackground(getDrawable(R.drawable.default_bg));
 
@@ -178,6 +182,7 @@ public class LockscreenActivity extends AppCompatActivity {
                     finish();
                 }
                 else {
+                    enterPinTextView.setTextColor(Color.RED);
                     enterPinTextView.setText("Invalid PIN");
                 }
             }
