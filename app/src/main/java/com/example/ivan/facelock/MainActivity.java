@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mRunOnStartup;      // should run on startup?
     private boolean mPinSet;            // is PIN set?
     private String mPin;                // PIN
+    private boolean canReadExternalStorage = false;
 
     // Log tag
     private final String TAG = "MainActivity";
@@ -64,10 +67,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_facelock);
         mContext = this;
 
-        // get permission to read external storage
-        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+            // get permission to read external storage
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+        else {
+            canReadExternalStorage = true;
+        }
         // add 6 empty strings to each list
         for(int i = 0; i < 6; i++) {
             titles.add(" ");
@@ -127,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // get a background image from gallery
                     case BACKGROUND_OPTION:
-                        if (!mEnabled) {
+                        if (!mEnabled && canReadExternalStorage) {
                             Intent intent = new Intent();
                             intent.setType("image/*");
                             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -326,6 +335,22 @@ public class MainActivity extends AppCompatActivity {
 
         if (!result) {
             Log.e(TAG, "failed to commit changes");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // granted permission to read external storage
+                canReadExternalStorage = true;
+            }
+            else {
+                // permission denied
+                canReadExternalStorage = false;
+            }
         }
     }
 }
