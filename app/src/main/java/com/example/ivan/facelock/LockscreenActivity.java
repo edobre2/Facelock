@@ -2,6 +2,7 @@ package com.example.ivan.facelock;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -28,7 +29,6 @@ import java.util.Date;
 public class LockscreenActivity extends AppCompatActivity {
 
     private String mEnteredPin;
-    private SharedPreferences mPreferences;
     private String mPin;
     private boolean mClock;
     private String mBackground;
@@ -68,12 +68,12 @@ public class LockscreenActivity extends AppCompatActivity {
         mContext = this;
         mEnteredPin = "";
 
-        // get settings from preferences file
-        mPreferences = getPreferences(MODE_PRIVATE);
-
-        mPin = mPreferences.getString("pin", "");
-        mBackground = mPreferences.getString("background", "");
-        mClock = mPreferences.getBoolean("clock", false);
+        // get settings from intent extras
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        mClock = bundle.getBoolean("clock");
+        mBackground = bundle.getString("background");
+        mPin = bundle.getString("pin");
 
         pinTextView.setText("");
         updateTime();

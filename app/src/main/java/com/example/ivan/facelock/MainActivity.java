@@ -103,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
                             mEnabled = true;
                             updateSettings();
                             Intent intent = new Intent(mContext, LockscreenActivity.class);
+                            intent.putExtra("pin", mPin);
+                            intent.putExtra("clock", mClock);
+                            intent.putExtra("background", mBackground);
                             startActivity(intent);
                         }
                         break;
