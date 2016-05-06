@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.util.Log;
@@ -285,17 +286,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getRealPathFromURI(Uri contentURI) {
-        String result;
-        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
-        if (cursor == null) { // Source is Dropbox or other similar local file path
-            result = contentURI.getPath();
-        } else {
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            result = cursor.getString(idx);
-            cursor.close();
-        }
-        return result;
+        String realPath;
+        // SDK < API11
+        if (Build.VERSION.SDK_INT < 11)
+            realPath = RealPathUtil.getRealPathFromURI_BelowAPI11(this, contentURI);
+
+            // SDK >= 11 && SDK < 19
+        else if (Build.VERSION.SDK_INT < 19)
+            realPath = RealPathUtil.getRealPathFromURI_API11to18(this, contentURI);
+
+            // SDK > 19 (Android 4.4)
+        else
+            realPath = RealPathUtil.getRealPathFromURI_API19(this, contentURI);
+
+        return realPath;
     }
 
     // save settings before destroying
