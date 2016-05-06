@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_facelock);
         mContext = this;
 
+        // get permission to read external storage
+        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
         // add 6 empty strings to each list
         for(int i = 0; i < 6; i++) {
             titles.add(" ");
@@ -197,8 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
             mBackground = getRealPathFromURI(imageUri);
             Log.i(TAG, mBackground);
             updateSettings();
