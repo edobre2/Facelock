@@ -79,6 +79,8 @@ public class LockscreenActivity extends AppCompatActivity {
 
         if (!mBackground.equals("Default"))
             layout.setBackground(Drawable.createFromPath(mBackground));
+        else
+            layout.setBackground(getDrawable(R.drawable.default_bg));
 
         // set a listener for each button
         one.setOnClickListener(new View.OnClickListener() {
