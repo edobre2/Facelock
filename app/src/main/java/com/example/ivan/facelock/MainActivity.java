@@ -120,10 +120,12 @@ public class MainActivity extends AppCompatActivity {
 
                     // get a background image from gallery
                     case BACKGROUND_OPTION:
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(intent, SELECT_PICTURE);
+                        if (!mEnabled) {
+                            Intent intent = new Intent();
+                            intent.setType("image/*");
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            startActivityForResult(intent, SELECT_PICTURE);
+                        }
                         break;
 
                     // change display clock status
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            mBackground = imageUri.getPath();
+            mBackground = getRealPathFromURI(imageUri);
             Log.i(TAG, mBackground);
             updateSettings();
         }
@@ -280,6 +282,20 @@ public class MainActivity extends AppCompatActivity {
         if (mAdapter != null) {
             mAdapter.update(titles, infos);
         }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
     }
 
     // save settings before destroying
