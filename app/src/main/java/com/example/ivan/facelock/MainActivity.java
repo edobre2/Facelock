@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
     protected  void onDestroy() {
         super.onDestroy();
 
-        Log.i(TAG, "onDestory()");
+        Log.i(TAG, "onDestroy()");
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean("enabled", mEnabled);
         editor.putString("pin", mPin);

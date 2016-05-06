@@ -157,7 +157,7 @@ public class LockscreenActivity extends AppCompatActivity {
                 if (mEnteredPin.length() > 0) {
                     // vibrate
                     Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                    vibrator.vibrate(500);
+                    vibrator.vibrate(100);
 
                     // make a click sound
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
@@ -174,7 +174,7 @@ public class LockscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mEnteredPin.equals(mPin)) {
                     // unlock phone
-
+                    finish();
                 }
             }
         });
@@ -206,7 +206,7 @@ public class LockscreenActivity extends AppCompatActivity {
 
         // vibrate
         Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(500);
+        v.vibrate(100);
 
         // make a click sound
         MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
