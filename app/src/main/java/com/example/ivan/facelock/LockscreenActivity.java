@@ -37,6 +37,7 @@ public class LockscreenActivity extends AppCompatActivity {
     TextView timeTextView;
     TextView dateTextView;
     TextView pinTextView;
+    TextView enterPinTextView;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,7 @@ public class LockscreenActivity extends AppCompatActivity {
         ImageButton ok = (ImageButton) findViewById(R.id.buttonOK);
 
         pinTextView = (TextView) findViewById(R.id.pinTextView);
-        TextView enterPinTextView = (TextView) findViewById(R.id.pinTextView);
+        enterPinTextView = (TextView) findViewById(R.id.pinTextView);
         timeTextView = (TextView) findViewById(R.id.timeTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
 
@@ -165,8 +166,8 @@ public class LockscreenActivity extends AppCompatActivity {
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
                     mp.start();
 
-                    mEnteredPin = mEnteredPin.substring(0, mEnteredPin.length() - 2);
-                    pinTextView.setText(pinTextView.getText().toString().substring(0, pinTextView.getText().toString().length() - 2));
+                    mEnteredPin = mEnteredPin.substring(0, mEnteredPin.length() - 1);
+                    pinTextView.setText(pinTextView.getText().toString().substring(0, pinTextView.getText().toString().length() - 1));
                 }
             }
         });
@@ -177,6 +178,9 @@ public class LockscreenActivity extends AppCompatActivity {
                 if (mEnteredPin.equals(mPin)) {
                     // unlock phone
                     finish();
+                }
+                else {
+                    enterPinTextView.setText("Invalid PIN");
                 }
             }
         });
