@@ -59,7 +59,7 @@ public class LockscreenActivity extends AppCompatActivity {
         ImageButton ok = (ImageButton) findViewById(R.id.buttonOK);
 
         pinTextView = (TextView) findViewById(R.id.pinTextView);
-        enterPinTextView = (TextView) findViewById(R.id.pinTextView);
+        enterPinTextView = (TextView) findViewById(R.id.enterPinTextView);
         timeTextView = (TextView) findViewById(R.id.timeTextView);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
 
@@ -162,9 +162,6 @@ public class LockscreenActivity extends AppCompatActivity {
                     Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
                     vibrator.vibrate(50);
 
-                    // make a click sound
-                    MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
-                    mp.start();
 
                     mEnteredPin = mEnteredPin.substring(0, mEnteredPin.length() - 1);
                     pinTextView.setText(pinTextView.getText().toString().substring(0, pinTextView.getText().toString().length() - 1));
@@ -177,6 +174,7 @@ public class LockscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mEnteredPin.equals(mPin)) {
                     // unlock phone
+                    // unlock sound
                     finish();
                 }
                 else {
@@ -213,10 +211,6 @@ public class LockscreenActivity extends AppCompatActivity {
         // vibrate
         Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(50);
-
-        // make a click sound
-        MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
-        mp.start();
 
         // append the character
         mEnteredPin = mEnteredPin + c;
