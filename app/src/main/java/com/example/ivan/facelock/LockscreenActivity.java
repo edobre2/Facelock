@@ -160,7 +160,7 @@ public class LockscreenActivity extends AppCompatActivity {
                 if (mEnteredPin.length() > 0) {
                     // vibrate
                     Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                    vibrator.vibrate(100);
+                    vibrator.vibrate(50);
 
                     // make a click sound
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
@@ -212,7 +212,7 @@ public class LockscreenActivity extends AppCompatActivity {
 
         // vibrate
         Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(100);
+        v.vibrate(50);
 
         // make a click sound
         MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
