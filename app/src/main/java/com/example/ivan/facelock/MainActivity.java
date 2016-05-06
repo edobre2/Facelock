@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean mRunOnStartup;      // should run on startup?
     private boolean mPinSet;            // is PIN set?
     private String mPin;                // PIN
-    private boolean canReadExternalStorage = false;
 
     // Log tag
     private final String TAG = "MainActivity";
@@ -45,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     final static int DEFAULT_SETTINGS_OPTION = 5;
     final static int GET_PIN_REQUEST = 0;
     final static int SELECT_PICTURE = 1;
-    final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
 
     // title and info text for each menu option
     private List<String> titles = new ArrayList<String>();
@@ -68,16 +66,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_facelock);
         mContext = this;
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-            // get permission to read external storage
-        if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        }
-        else {
-            canReadExternalStorage = true;
-        }
         // add 6 empty strings to each list
         for(int i = 0; i < 6; i++) {
             titles.add(" ");
@@ -137,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // get a background image from gallery
                     case BACKGROUND_OPTION:
-                        if (!mEnabled && canReadExternalStorage) {
+                        if (!mEnabled) {
                             Intent intent = new Intent();
                             intent.setType("image/*");
                             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -212,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            mBackground = getRealPathFromURI(imageUri);
+            mBackground = imageUri.toString();
             Log.i(TAG, mBackground);
             updateSettings();
         }
@@ -302,23 +290,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getRealPathFromURI(Uri contentURI) {
-        String realPath;
-        // SDK < API11
-        if (Build.VERSION.SDK_INT < 11)
-            realPath = RealPathUtil.getRealPathFromURI_BelowAPI11(this, contentURI);
-
-            // SDK >= 11 && SDK < 19
-        else if (Build.VERSION.SDK_INT < 19)
-            realPath = RealPathUtil.getRealPathFromURI_API11to18(this, contentURI);
-
-            // SDK > 19 (Android 4.4)
-        else
-            realPath = RealPathUtil.getRealPathFromURI_API19(this, contentURI);
-
-        return realPath;
-    }
-
     // save settings before destroying
     @Override
     protected  void onDestroy() {
@@ -336,22 +307,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (!result) {
             Log.e(TAG, "failed to commit changes");
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
-
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // granted permission to read external storage
-                canReadExternalStorage = true;
-            }
-            else {
-                // permission denied
-                canReadExternalStorage = false;
-            }
         }
     }
 }

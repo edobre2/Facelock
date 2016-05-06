@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -19,6 +20,9 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -80,9 +84,15 @@ public class LockscreenActivity extends AppCompatActivity {
         updateTime();
 
         if (!mBackground.equals("Default")) {
-            Drawable d = Drawable.createFromPath(mBackground);
-            if ( d!= null)
-            layout.setBackground(d);
+            Uri imageUri = Uri.parse(mBackground);
+            Drawable d;
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                d = Drawable.createFromStream(inputStream, imageUri.toString() );
+                layout.setBackground(d);
+            } catch (FileNotFoundException e) {
+                layout.setBackground(getDrawable(R.drawable.default_bg));
+            }
         }
         else
             layout.setBackground(getDrawable(R.drawable.default_bg));
