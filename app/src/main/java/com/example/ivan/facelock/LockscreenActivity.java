@@ -32,7 +32,7 @@ import java.util.Calendar;
  * Created by Emanuil Dobrev on 5/6/16.
  */
 
-public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener
+public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener
 {
 
     private boolean canLock = false;
@@ -62,8 +62,6 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
 
         Log.i(TAG, "onCreate()");
         mDetector = new GestureDetectorCompat(this,this);
-        mDetector.setOnDoubleTapListener(this);
-
 
         // get a reference to each view
         ImageButton one = (ImageButton) findViewById(R.id.buttonOne);
@@ -359,24 +357,8 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         Log.i(TAG, "onFling()");
-        return true;
-    }
-
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
-        Log.i(TAG, "onSingleTapConfirmed()");
-        return true;
-    }
-
-    @Override
-    public boolean onDoubleTap(MotionEvent e) {
-        Log.i(TAG, "onDoubleTap()");
-        return true;
-    }
-
-    @Override
-    public boolean onDoubleTapEvent(MotionEvent e) {
-        Log.i(TAG, "onDoubleTapEvent()");
+        Intent intent = new Intent(this, FaceDetectActivity.class);
+        startActivity(intent);
         return true;
     }
 
