@@ -32,7 +32,7 @@ import java.util.Calendar;
  * Created by Emanuil Dobrev on 5/6/16.
  */
 
-public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener
+public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener
 {
 
     private boolean canLock = false;
@@ -62,6 +62,8 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
 
         Log.i(TAG, "onCreate()");
         mDetector = new GestureDetectorCompat(this,this);
+        mDetector.setOnDoubleTapListener(this);
+
 
         // get a reference to each view
         ImageButton one = (ImageButton) findViewById(R.id.buttonOne);
@@ -327,27 +329,30 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
     // gesture detector events
     @Override
     public boolean onDown(MotionEvent e) {
-        return false;
+        Log.i(TAG, "onDown()");
+        return true;
     }
 
     @Override
     public void onShowPress(MotionEvent e) {
-
+        Log.i(TAG, "onShowPress()");
     }
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        return false;
+        Log.i(TAG, "onSingleTapUp()");
+        return true;
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
+        Log.i(TAG, "onScrioll()");
+        return true;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-
+        Log.i(TAG, "onLongPress()");
     }
 
     // open face detect activity on fling
@@ -356,4 +361,30 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
         Log.i(TAG, "onFling()");
         return true;
     }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        Log.i(TAG, "onSingleTapConfirmed()");
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        Log.i(TAG, "onDoubleTap()");
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        Log.i(TAG, "onDoubleTapEvent()");
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        // Be sure to call the superclass implementation
+        return super.onTouchEvent(event);
+    }
+
 }
