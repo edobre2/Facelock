@@ -1,22 +1,13 @@
 package com.example.ivan.facelock;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import java.util.ArrayList;
@@ -34,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Log tag
     private final String TAG = "MainActivity";
+    private Intent mServiceIntent = null;
 
     // option ids
     final static int ENABLE_OPTION = 0;
@@ -100,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
                         if (mEnabled) {
                             mEnabled = false;
                             updateSettings();
+
+                            if (LockscreenService.isRunning)
+                                stopService(LockscreenService.mIntent);
+
                         }
                         // if disabled, launch service
                         else {
@@ -107,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             mEnabled = true;
                             updateSettings();
-                            Intent intent = new Intent(mContext, LockscreenService.class);
-                            intent.putExtra("pin", mPin);
-                            intent.putExtra("clock", mClock);
-                            intent.putExtra("background", mBackground);
-                            startService(intent);
+                            mServiceIntent = new Intent(mContext, LockscreenService.class);
+                            mServiceIntent.putExtra("pin", mPin);
+                            mServiceIntent.putExtra("clock", mClock);
+                            mServiceIntent.putExtra("background", mBackground);
+                            startService(mServiceIntent);
                         }
                         break;
 
