@@ -9,16 +9,26 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.util.Log;
 
 public class LockscreenService extends Service {
     BroadcastReceiver mReceiver;
+    private static String TAG = "LockscreenService";
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
+    public void onCreate() {
+        Log.i(TAG, "onCreate()");
+        super.onCreate();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "onStartCommand()");
+
         KeyguardManager.KeyguardLock kl;
         KeyguardManager km =(KeyguardManager)getSystemService(KEYGUARD_SERVICE);
         kl= km.newKeyguardLock("IN");
@@ -38,6 +48,7 @@ public class LockscreenService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy()");
         unregisterReceiver(mReceiver);
         super.onDestroy();
     }

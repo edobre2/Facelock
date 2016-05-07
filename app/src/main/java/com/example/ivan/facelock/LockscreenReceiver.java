@@ -6,19 +6,23 @@ package com.example.ivan.facelock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.WindowManager;
 
 public class LockscreenReceiver extends BroadcastReceiver {
+    private static String TAG = "LockscreenReceiver";
+
     // lockscreen settings
     private boolean mClock;
     private String mPin;
     private String mBackground;
 
     public LockscreenReceiver() {
-
+        Log.i(TAG, "LockscreenReceiver() default");
     }
     // constructor takes settings as parameters
     public LockscreenReceiver(boolean clock, String pin, String background) {
+        Log.i(TAG, "LockscreenReceiver()");
         mClock = clock;
         mPin = pin;
         mBackground = background;
@@ -27,6 +31,7 @@ public class LockscreenReceiver extends BroadcastReceiver {
     // on receive - create an intent that launches lockscreen activity, passing settings as extras
     public void onReceive(Context context, Intent intent) {
 
+        Log.i(TAG, "onReceive()");
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
 
             Intent localIntent = new Intent(context, LockscreenActivity.class);
