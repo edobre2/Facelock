@@ -14,8 +14,11 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -29,7 +32,8 @@ import java.util.Calendar;
  * Created by Emanuil Dobrev on 5/6/16.
  */
 
-public class LockscreenActivity extends AppCompatActivity {
+public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener
+{
 
     private boolean canLock = false;
     private boolean locked = false;
@@ -39,6 +43,8 @@ public class LockscreenActivity extends AppCompatActivity {
     private boolean mClock;
     private String mBackground;
     private Context mContext;
+
+    private GestureDetectorCompat mDetector;
 
     private static final String TAG = "LockscreenActivity";
     private static final int REQUEST_CODE = 0;
@@ -55,6 +61,8 @@ public class LockscreenActivity extends AppCompatActivity {
         setContentView(R.layout.lockscreen);
 
         Log.i(TAG, "onCreate()");
+        mDetector = new GestureDetectorCompat(this,this);
+
         // get a reference to each view
         ImageButton one = (ImageButton) findViewById(R.id.buttonOne);
         ImageButton two = (ImageButton) findViewById(R.id.buttonTwo);
@@ -75,6 +83,7 @@ public class LockscreenActivity extends AppCompatActivity {
         dateTextView = (TextView) findViewById(R.id.dateTextView);
 
         LinearLayout layout = (LinearLayout) findViewById(R.id.linear_layout);
+
 
         mContext = this;
         mEnteredPin = "";
@@ -223,6 +232,7 @@ public class LockscreenActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     private void updateTime() {
@@ -312,5 +322,38 @@ public class LockscreenActivity extends AppCompatActivity {
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
             sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
         }
+    }
+
+    // gesture detector events
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    // open face detect activity on fling
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        Log.i(TAG, "onFling()");
+        return true;
     }
 }

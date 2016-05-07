@@ -27,6 +27,8 @@
         <activity
             android:name=".LockscreenActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".FaceDetectActivity"
+            android:screenOrientation="portrait" />
 
         <receiver android:name=".LockscreenReceiver">
             <intent-filter >
