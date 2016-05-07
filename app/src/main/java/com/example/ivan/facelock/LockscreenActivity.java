@@ -285,28 +285,32 @@ public class LockscreenActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onPause() {
+        if (locked) {
+            locked = false;
+            locker.unlock();
+        }
+        super.onPause();
+    }
+
+
+    @Override public void onResume() {
+        if(!locked) {
+            locked = true;
+            locker.lock(this);
+        }
+        super.onResume();
+    }
+
+    @Override
     public void onWindowFocusChanged (boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
         if( !hasFocus )
         {
-            if (locked) {
-                locked = false;
-                locker.unlock();
-            }
             ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
             sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
-
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    locker.lock((Activity) mContext);
-                    locked = true;
-                }
-            }, 2000);
-
         }
     }
 }
