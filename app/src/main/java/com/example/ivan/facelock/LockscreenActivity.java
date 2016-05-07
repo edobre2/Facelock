@@ -306,7 +306,7 @@ public class LockscreenActivity extends AppCompatActivity {
     public void onWindowFocusChanged (boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
-        if( !hasFocus )
+        if( ! hasFocus )
         {
             ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
