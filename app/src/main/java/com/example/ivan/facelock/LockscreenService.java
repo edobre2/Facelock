@@ -15,11 +15,7 @@ import android.util.Log;
 public class LockscreenService extends Service {
     BroadcastReceiver mReceiver;
     private static String TAG = "LockscreenService";
-    public static boolean isRunning = false;
     public static Intent mIntent = null;
-    public static boolean clock;
-    public static String pin;
-    public static String background;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,7 +30,6 @@ public class LockscreenService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        isRunning = true;
         Log.i(TAG, "onStartCommand()");
 
         KeyguardManager.KeyguardLock kl;
@@ -45,7 +40,7 @@ public class LockscreenService extends Service {
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
 
-        mReceiver = new LockscreenReceiver(clock, pin, background);
+        mReceiver = new LockscreenReceiver();
         registerReceiver(mReceiver, filter);
         return START_STICKY;
     }
@@ -54,7 +49,7 @@ public class LockscreenService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy()");
         unregisterReceiver(mReceiver);
-        isRunning = false;
+        mIntent = null;
         super.onDestroy();
     }
 }

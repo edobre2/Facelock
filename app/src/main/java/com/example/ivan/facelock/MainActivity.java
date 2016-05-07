@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // get shared preferences file
-        mPreferences = getPreferences(MODE_PRIVATE);
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         // get settings from shared preferences
         loadSettings();
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                             mEnabled = false;
                             updateSettings();
 
-                            if (LockscreenService.isRunning)
+                            if (LockscreenService.mIntent != null)
                                 stopService(LockscreenService.mIntent);
 
                         }
@@ -106,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
                             updateSettings();
                             mServiceIntent = new Intent(mContext, LockscreenService.class);
                             LockscreenService.mIntent = mServiceIntent;
-                            LockscreenService.background = mBackground;
-                            LockscreenService.clock = mClock;
-                            LockscreenService.pin = mPin;
                             startService(mServiceIntent);
                         }
                         break;

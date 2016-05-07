@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -40,6 +41,7 @@ public class LockscreenActivity extends AppCompatActivity {
     private String mBackground;
     private Context mContext;
     private static String TAG = "LockscreenActivity";
+    SharedPreferences mSharedPreferences;
     TextView timeTextView;
     TextView dateTextView;
     TextView pinTextView;
@@ -75,12 +77,17 @@ public class LockscreenActivity extends AppCompatActivity {
         mContext = this;
         mEnteredPin = "";
 
-        // get settings from intent extras
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        mClock = bundle.getBoolean("clock");
-        mBackground = bundle.getString("background");
-        mPin = bundle.getString("pin");
+        // get settings from shared preferences
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (! mSharedPreferences.contains("initialized")) {
+            Log.e(TAG, "Shared Preferences were not initialized");
+            finish();
+        }
+
+        mPin = mSharedPreferences.getString("pin", "0000");
+        mBackground = mSharedPreferences.getString("background", "Default");
+        mClock = mSharedPreferences.getBoolean("clock", true);
+
 
         pinTextView.setText("");
         updateTime();
