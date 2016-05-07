@@ -282,7 +282,6 @@ public class LockscreenActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged (boolean hasFocus)
     {
-        updateTime();
         super.onWindowFocusChanged(hasFocus);
         if( !hasFocus )
         {
@@ -293,6 +292,8 @@ public class LockscreenActivity extends AppCompatActivity {
             ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
             sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
+            locker.lock(this);
+            locked = true;
         }
         else {
             if(!locked && canLock) {
