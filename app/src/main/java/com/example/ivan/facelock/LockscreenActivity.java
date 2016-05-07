@@ -1,5 +1,6 @@
 package com.example.ivan.facelock;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -207,6 +209,9 @@ public class LockscreenActivity extends AppCompatActivity {
                     // unlock phone
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
                     mp.start();
+
+                    if(locked)
+                        locker.unlock();
                     finish();
                 }
                 else {
@@ -292,8 +297,16 @@ public class LockscreenActivity extends AppCompatActivity {
             ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
             sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
-            locker.lock(this);
-            locked = true;
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    locker.lock((Activity) mContext);
+                    locked = true;
+                }
+            }, 2000);
+
         }
     }
 }
