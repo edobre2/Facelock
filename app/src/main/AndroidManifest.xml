@@ -27,8 +27,19 @@
         <activity
             android:name=".LockscreenActivity"
             android:screenOrientation="portrait"/>
+
+        <receiver android:name=".LockscreenReceiver">
+            <intent-filter >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+            </intent-filter>/>
+        </receiver>
+
+        <service android:name=".LockscreenService"/>
+
     </application>
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
 </manifest>
