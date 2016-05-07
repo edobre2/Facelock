@@ -287,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
 
     // save settings before destroying
     @Override
-    protected  void onDestroy() {
-        super.onDestroy();
+    protected  void onPause() {
+        super.onPause();
 
         Log.i(TAG, "onDestroy()");
         SharedPreferences.Editor editor = mPreferences.edit();
