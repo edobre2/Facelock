@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,9 +105,10 @@ public class MainActivity extends AppCompatActivity {
                             mEnabled = true;
                             updateSettings();
                             mServiceIntent = new Intent(mContext, LockscreenService.class);
-                            mServiceIntent.putExtra("pin", mPin);
-                            mServiceIntent.putExtra("clock", mClock);
-                            mServiceIntent.putExtra("background", mBackground);
+                            LockscreenService.mIntent = mServiceIntent;
+                            LockscreenService.background = mBackground;
+                            LockscreenService.clock = mClock;
+                            LockscreenService.pin = mPin;
                             startService(mServiceIntent);
                         }
                         break;

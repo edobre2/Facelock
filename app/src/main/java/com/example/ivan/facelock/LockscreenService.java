@@ -17,6 +17,9 @@ public class LockscreenService extends Service {
     private static String TAG = "LockscreenService";
     public static boolean isRunning = false;
     public static Intent mIntent = null;
+    public static boolean clock;
+    public static String pin;
+    public static String background;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -35,20 +38,11 @@ public class LockscreenService extends Service {
         Log.i(TAG, "onStartCommand()");
 
         mIntent = intent;
-        if(intent == null) {
-            Log.i(TAG, "intent passed to service is null");
-            return START_STICKY;
-        }
 
         KeyguardManager.KeyguardLock kl;
         KeyguardManager km =(KeyguardManager)getSystemService(KEYGUARD_SERVICE);
         kl= km.newKeyguardLock("IN");
         kl.disableKeyguard();
-
-        Bundle extras = intent.getExtras();
-        boolean clock = extras.getBoolean("clock");
-        String pin = extras.getString("pin");
-        String background = extras.getString("background");
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
