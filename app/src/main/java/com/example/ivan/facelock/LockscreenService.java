@@ -37,8 +37,6 @@ public class LockscreenService extends Service {
         isRunning = true;
         Log.i(TAG, "onStartCommand()");
 
-        mIntent = intent;
-
         KeyguardManager.KeyguardLock kl;
         KeyguardManager km =(KeyguardManager)getSystemService(KEYGUARD_SERVICE);
         kl= km.newKeyguardLock("IN");

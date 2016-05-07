@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -38,7 +39,7 @@ public class LockscreenActivity extends AppCompatActivity {
     private boolean mClock;
     private String mBackground;
     private Context mContext;
-
+    private static String TAG = "LockscreenActivity";
     TextView timeTextView;
     TextView dateTextView;
     TextView pinTextView;
@@ -49,6 +50,7 @@ public class LockscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lockscreen);
 
+        Log.i(TAG, "onCreate()");
         // get a reference to each view
         ImageButton one = (ImageButton) findViewById(R.id.buttonOne);
         ImageButton two = (ImageButton) findViewById(R.id.buttonTwo);
