@@ -1,33 +1,27 @@
 package com.example.ivan.facelock;
 
-import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by Emanuil Dobrev on 5/6/16.
@@ -35,13 +29,19 @@ import java.util.Date;
 
 public class LockscreenActivity extends AppCompatActivity {
 
+    private boolean canLock = false;
+    private boolean locked = false;
+    private HomeKeyLocker locker;
     private String mEnteredPin;
     private String mPin;
     private boolean mClock;
     private String mBackground;
     private Context mContext;
-    private static String TAG = "LockscreenActivity";
+
+    private static final String TAG = "LockscreenActivity";
+    private static final int REQUEST_CODE = 0;
     SharedPreferences mSharedPreferences;
+
     TextView timeTextView;
     TextView dateTextView;
     TextView pinTextView;
@@ -76,6 +76,14 @@ public class LockscreenActivity extends AppCompatActivity {
 
         mContext = this;
         mEnteredPin = "";
+        locker = new HomeKeyLocker();
+        checkDrawOverlayPermission();
+
+        if(Settings.canDrawOverlays(this)) {
+            canLock = true;
+            locker.lock(this);
+            locked = true;
+        }
 
         // get settings from shared preferences
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -197,12 +205,12 @@ public class LockscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mEnteredPin.equals(mPin)) {
                     // unlock phone
-                    // unlock sound
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
                     mp.start();
                     finish();
                 }
                 else {
+                    // access denied
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.beep);
                     mp.start();
                     enterPinTextView.setTextColor(Color.RED);
@@ -244,5 +252,53 @@ public class LockscreenActivity extends AppCompatActivity {
         mEnteredPin = mEnteredPin + c;
 
         pinTextView.setText(pinTextView.getText().toString() + '*');
+    }
+
+    public void checkDrawOverlayPermission() {
+        /** check if we already  have permission to draw over other apps */
+        if (!Settings.canDrawOverlays(mContext)) {
+            /** if not construct intent to request permission */
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            /** request permission via start activity for result */
+            startActivityForResult(intent, REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
+        /** check if received result code
+         is equal our requested code for draw permission  */
+        Log.i("stuff", "Code is " + REQUEST_CODE);
+        if (requestCode == REQUEST_CODE) {
+
+            if (Settings.canDrawOverlays(this)) {
+                // continue here - permission was granted
+                canLock = true;
+            }
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged (boolean hasFocus)
+    {
+        updateTime();
+        super.onWindowFocusChanged(hasFocus);
+        if( !hasFocus )
+        {
+            if (locked) {
+                locked = false;
+                locker.unlock();
+            }
+            ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+            am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
+            sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
+        }
+        else {
+            if(!locked && canLock) {
+                locked = true;
+                locker.lock(this);
+            }
+        }
     }
 }
