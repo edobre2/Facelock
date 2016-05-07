@@ -149,6 +149,6 @@ public class FaceDetectActivity extends AppCompatActivity implements CameraBridg
         if (facesArray.length > 0) {
             finish();
         }
-        return mGray;
+        return inputFrame.rgba();
     }
 }
