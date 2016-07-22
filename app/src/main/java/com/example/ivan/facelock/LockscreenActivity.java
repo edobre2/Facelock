@@ -1,11 +1,14 @@
 package com.example.ivan.facelock;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -14,15 +17,23 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -34,10 +45,7 @@ import java.util.Calendar;
 
 public class LockscreenActivity extends AppCompatActivity implements GestureDetector.OnGestureListener
 {
-
-    private boolean canLock = false;
-    private boolean locked = false;
-    private HomeKeyLocker locker;
+    private WindowManager.LayoutParams layoutParams;
     private String mEnteredPin;
     private String mPin;
     private boolean mClock;
@@ -47,55 +55,70 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
     private GestureDetectorCompat mDetector;
 
     private static final String TAG = "LockscreenActivity";
-    private static final int REQUEST_CODE = 0;
+    private static final int FD_REQUEST = 1;
     SharedPreferences mSharedPreferences;
 
     TextView timeTextView;
     TextView dateTextView;
     TextView pinTextView;
     TextView enterPinTextView;
+    ImageButton one, two, three, four, five, six, seven, eight, nine, zero, back, ok;
+    LinearLayout layout;
 
+    public WindowManager winManager;
+    public RelativeLayout wrapperView;
+
+    private void unlockDevice() {
+        Log.i(TAG, "unlockDevice()");
+        winManager.removeView(wrapperView);
+        wrapperView.removeAllViews();
+    }
+
+    private boolean lockDevice(){
+        Log.i(TAG, "lockDevice()");
+        if(Settings.canDrawOverlays(this)) {
+            View.inflate(this, R.layout.lockscreen, this.wrapperView);
+            winManager.addView(wrapperView, layoutParams);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.lockscreen);
 
         Log.i(TAG, "onCreate()");
-        mDetector = new GestureDetectorCompat(this,this);
+        mDetector = new GestureDetectorCompat(this, this);
 
-        // get a reference to each view
-        ImageButton one = (ImageButton) findViewById(R.id.buttonOne);
-        ImageButton two = (ImageButton) findViewById(R.id.buttonTwo);
-        ImageButton three = (ImageButton) findViewById(R.id.buttonThree);
-        ImageButton four = (ImageButton) findViewById(R.id.buttonFour);
-        ImageButton five = (ImageButton) findViewById(R.id.buttonFive);
-        ImageButton six = (ImageButton) findViewById(R.id.buttonSix);
-        ImageButton seven = (ImageButton) findViewById(R.id.buttonSeven);
-        ImageButton eight = (ImageButton) findViewById(R.id.buttonEight);
-        ImageButton nine = (ImageButton) findViewById(R.id.buttonNine);
-        ImageButton zero = (ImageButton) findViewById(R.id.buttonZero);
-        ImageButton back = (ImageButton) findViewById(R.id.buttonBack);
-        ImageButton ok = (ImageButton) findViewById(R.id.buttonOK);
-
-        pinTextView = (TextView) findViewById(R.id.pinTextView);
-        enterPinTextView = (TextView) findViewById(R.id.enterPinTextView);
-        timeTextView = (TextView) findViewById(R.id.timeTextView);
-        dateTextView = (TextView) findViewById(R.id.dateTextView);
-
-        LinearLayout layout = (LinearLayout) findViewById(R.id.linear_layout);
-
+        layoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT);
+        this.winManager = ((WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE));
+        this.wrapperView = new RelativeLayout(getBaseContext());
+        getWindow().setAttributes(layoutParams);
+        View.inflate(this, R.layout.lockscreen, this.wrapperView);
+        this.winManager.addView(this.wrapperView, layoutParams);
 
         mContext = this;
         mEnteredPin = "";
-        locker = new HomeKeyLocker();
-        checkDrawOverlayPermission();
 
-        if(Settings.canDrawOverlays(this)) {
-            canLock = true;
-            locker.lock(this);
-            locked = true;
-        }
 
+        wrapperView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mDetector.onTouchEvent(event);
+                return true;
+            }
+        });
         // get settings from shared preferences
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         if (! mSharedPreferences.contains("initialized")) {
@@ -107,9 +130,26 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
         mBackground = mSharedPreferences.getString("background", "Default");
         mClock = mSharedPreferences.getBoolean("clock", true);
 
+        // get a reference to each view
+        one = (ImageButton) wrapperView.findViewById(R.id.buttonOne);
+        two = (ImageButton) wrapperView.findViewById(R.id.buttonTwo);
+        three = (ImageButton) wrapperView.findViewById(R.id.buttonThree);
+        four = (ImageButton) wrapperView.findViewById(R.id.buttonFour);
+        five = (ImageButton) wrapperView.findViewById(R.id.buttonFive);
+        six = (ImageButton) wrapperView.findViewById(R.id.buttonSix);
+        seven = (ImageButton) wrapperView.findViewById(R.id.buttonSeven);
+        eight = (ImageButton) wrapperView.findViewById(R.id.buttonEight);
+        nine = (ImageButton) wrapperView.findViewById(R.id.buttonNine);
+        zero = (ImageButton) wrapperView.findViewById(R.id.buttonZero);
+        back = (ImageButton) wrapperView.findViewById(R.id.buttonBack);
+        ok = (ImageButton) wrapperView.findViewById(R.id.buttonOK);
 
-        pinTextView.setText("");
-        updateTime();
+        pinTextView = (TextView) wrapperView.findViewById(R.id.pinTextView);
+        enterPinTextView = (TextView) wrapperView.findViewById(R.id.enterPinTextView);
+        timeTextView = (TextView) wrapperView.findViewById(R.id.timeTextView);
+        dateTextView = (TextView) wrapperView.findViewById(R.id.dateTextView);
+
+        layout = (LinearLayout) wrapperView.findViewById(R.id.linear_layout);
 
         if (!mBackground.equals("Default")) {
             Uri imageUri = Uri.parse(mBackground);
@@ -200,13 +240,13 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
             @Override
             public void onClick(View v) {
                 if (mEnteredPin.length() > 0) {
-                    // vibrate
-                    Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                    vibrator.vibrate(50);
-
-
                     mEnteredPin = mEnteredPin.substring(0, mEnteredPin.length() - 1);
                     pinTextView.setText(pinTextView.getText().toString().substring(0, pinTextView.getText().toString().length() - 1));
+                }
+                else {
+                    // vibrate
+                    Vibrator vb = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                    vb.vibrate(50);
                 }
             }
         });
@@ -215,23 +255,28 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
             @Override
             public void onClick(View v) {
                 if (mEnteredPin.equals(mPin)) {
-                    // unlock phone
                     MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
                     mp.start();
-
-                    if(locked)
-                        locker.unlock();
+                    unlockDevice();
+                    // unlock here
                     finish();
                 }
                 else {
                     // access denied
-                    MediaPlayer mp = MediaPlayer.create(mContext, R.raw.beep);
-                    mp.start();
+                    // vibrate
+                    Vibrator vb = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                    vb.vibrate(50);
                     enterPinTextView.setTextColor(Color.RED);
                     enterPinTextView.setText("Invalid PIN");
                 }
             }
         });
+
+        pinTextView.setText("");
+        updateTime();
+
+
+
 
     }
 
@@ -259,68 +304,26 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
         if (mEnteredPin.length() > 10)
             return;
 
-        // vibrate
-        Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(50);
-
         // append the character
         mEnteredPin = mEnteredPin + c;
 
         pinTextView.setText(pinTextView.getText().toString() + '*');
     }
 
-    public void checkDrawOverlayPermission() {
-        /** check if we already  have permission to draw over other apps */
-        if (!Settings.canDrawOverlays(mContext)) {
-            /** if not construct intent to request permission */
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            /** request permission via start activity for result */
-            startActivityForResult(intent, REQUEST_CODE);
-        }
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
-        /** check if received result code
-         is equal our requested code for draw permission  */
-        Log.i("stuff", "Code is " + REQUEST_CODE);
-        if (requestCode == REQUEST_CODE) {
-
-            if (Settings.canDrawOverlays(this)) {
-                // continue here - permission was granted
-                canLock = true;
+        if (requestCode == FD_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                MediaPlayer mp = MediaPlayer.create(mContext, R.raw.click);
+                mp.start();
+                unlockDevice();
+                finish();
             }
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (locked) {
-            locked = false;
-            locker.unlock();
-        }
-        super.onPause();
-    }
-
-
-    @Override public void onResume() {
-        if(!locked) {
-            locked = true;
-            locker.lock(this);
-        }
-        super.onResume();
-    }
-
-    @Override
-    public void onWindowFocusChanged (boolean hasFocus)
-    {
-        super.onWindowFocusChanged(hasFocus);
-        if( ! hasFocus )
-        {
-            ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-            am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME );
-            sendBroadcast( new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) );
+            else {
+                lockDevice();
+            }
         }
     }
 
@@ -328,23 +331,27 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
     @Override
     public boolean onDown(MotionEvent e) {
         Log.i(TAG, "onDown()");
+
         return true;
     }
 
     @Override
     public void onShowPress(MotionEvent e) {
         Log.i(TAG, "onShowPress()");
+
     }
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         Log.i(TAG, "onSingleTapUp()");
+
         return true;
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        Log.i(TAG, "onScrioll()");
+        Log.i(TAG, "onScroll()");
+
         return true;
     }
 
@@ -357,16 +364,9 @@ public class LockscreenActivity extends AppCompatActivity implements GestureDete
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         Log.i(TAG, "onFling()");
+        unlockDevice();
         Intent intent = new Intent(this, FaceDetectActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, FD_REQUEST) ;
         return true;
     }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event){
-        this.mDetector.onTouchEvent(event);
-        // Be sure to call the superclass implementation
-        return super.onTouchEvent(event);
-    }
-
 }

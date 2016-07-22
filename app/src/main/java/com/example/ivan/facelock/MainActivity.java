@@ -1,16 +1,23 @@
 package com.example.ivan.facelock;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     final static int DEFAULT_SETTINGS_OPTION = 5;
     final static int GET_PIN_REQUEST = 0;
     final static int SELECT_PICTURE = 1;
+    final static int MANAGE_DOCUMENTS_REQUEST = 2;
+    final static int DRAW_OVERLAYS_REQUEST = 3;
 
     // title and info text for each menu option
     private List<String> titles = new ArrayList<String>();
@@ -56,8 +65,13 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "onCreate()");
 
+        // set layout
         setContentView(R.layout.activity_facelock);
         mContext = this;
+
+        // get permission
+        checkDrawOverlayPermission();
+
 
         // add 6 empty strings to each list
         for(int i = 0; i < 6; i++) {
@@ -199,7 +213,17 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, mBackground);
             updateSettings();
         }
+    }
 
+    public void checkDrawOverlayPermission() {
+        /** check if we already  have permission to draw over other apps */
+        if (!Settings.canDrawOverlays(mContext)) {
+            /** if not construct intent to request permission */
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            /** request permission via start activity for result */
+            startActivityForResult(intent, DRAW_OVERLAYS_REQUEST);
+        }
     }
 
     // load settings from shared preferences
@@ -285,12 +309,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // save settings before destroying
+    // save settings when application loses focus
     @Override
     protected  void onPause() {
         super.onPause();
-
-        Log.i(TAG, "onDestroy()");
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean("enabled", mEnabled);
         editor.putString("pin", mPin);
@@ -298,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("background", mBackground);
         editor.putBoolean("clock", mClock);
         editor.putBoolean("runOnStartup", mRunOnStartup);
+
         boolean result = editor.commit();
 
         if (!result) {

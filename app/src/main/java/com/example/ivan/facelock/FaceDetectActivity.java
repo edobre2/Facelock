@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
+
 import java.io.InputStream;
 
 
@@ -128,7 +130,8 @@ public class FaceDetectActivity extends AppCompatActivity implements CameraBridg
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        mGray = inputFrame.gray();
+        mGray = inputFrame.rgba();
+
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
             if (Math.round(height * mRelativeFaceSize) > 0) {
@@ -140,6 +143,8 @@ public class FaceDetectActivity extends AppCompatActivity implements CameraBridg
 
         if (mJavaDetector != null) {
             Core.flip(mGray.t(), mGray, 0);
+            Log.i("MANN2", mGray.width() + "*" + mGray.height());
+
             mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2,
                     new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
         }
@@ -147,8 +152,22 @@ public class FaceDetectActivity extends AppCompatActivity implements CameraBridg
         for (int i = 0; i < facesArray.length; i++)
             Imgproc.rectangle(mGray, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
         if (facesArray.length > 0) {
+            setResult(RESULT_OK);
             finish();
         }
-        return inputFrame.rgba();
+        Core.flip(mGray.t(), mGray, 0);
+
+        return mGray;
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }
